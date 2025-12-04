@@ -61,6 +61,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     // Networking (Retrofit & Moshi)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt (libs.androidx.room.compiler)
     implementation(libs.retrofit)
     implementation(libs.converter.moshi)
     implementation(libs.moshi.kotlin)

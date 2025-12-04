@@ -1,13 +1,17 @@
 package com.example.lab_week_13.model
 
+import androidx.room.Entity
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+// Tambahkan anotasi @Entity di sini
+@Entity(tableName = "movies", primaryKeys = ["id"])
 @JsonClass(generateAdapter = true)
 data class Movie(
-    val adult: Boolean = false,
-    val backdrop_path: String? = null,
+    // Properti 'id' sudah cocok untuk menjadi Primary Key
     val id: Int = 0,
+    val adult: Boolean = false,
+    val backdrop_path: String? = "",
     @field:Json(name = "original_language")
     val originalLanguage: String? = null,
     @field:Json(name = "original_title")
