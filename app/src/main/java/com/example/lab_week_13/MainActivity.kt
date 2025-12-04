@@ -3,15 +3,11 @@ package com.example.lab_week_13
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.RecyclerView
+import com.example.lab_week_13.databinding.ActivityMainBinding
 import com.example.lab_week_13.model.Movie
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,41 +19,37 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private lateinit var movieViewModel: MovieViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val recyclerView: RecyclerView = findViewById(R.id.movie_list)
-        recyclerView.adapter = movieAdapter
 
+        val binding: ActivityMainBinding = DataBindingUtil
+            .setContentView(this, R.layout.activity_main)
+
+        // Ambil instance ViewModel
         val movieRepository = (application as MovieApplication).movieRepository
-        val movieViewModel = ViewModelProvider(
+        movieViewModel = ViewModelProvider(
             this, object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                     return MovieViewModel(movieRepository) as T
                 }
             })[MovieViewModel::class.java]
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    // --- PERUBAHAN UTAMA DI SINI ---
-                    // Sekarang kita mengumpulkan data yang sudah siap pakai dari ViewModel.
-                    movieViewModel.popularMovies.collect { movies ->
-                        // Tidak ada lagi logika filter atau sort.
-                        // Langsung perbarui adapter dengan data yang sudah diproses.
-                        movieAdapter.addMovies(movies)
-                    }
-                }
-                launch {
-                    // Blok untuk error tidak berubah.
-                    movieViewModel.error.collect { error ->
-                        if (error.isNotEmpty()) {
-                            Snackbar.make(recyclerView, error, Snackbar.LENGTH_LONG).show()
-                        }
-                    }
-                }
-            }
-        }
+        // === LANGKAH YANG ANDA MINTA SUDAH DILAKUKAN DI SINI ===
+        // 1. Menghubungkan viewModel ke binding
+        binding.viewModel = movieViewModel
+        // 2. Menetapkan lifecycleOwner
+        binding.lifecycleOwner = this
+        // ========================================================
+
+        // Mengatur adapter untuk RecyclerView
+        binding.movieList.adapter = movieAdapter
+
+        // === LANGKAH KETIGA JUGA SUDAH DILAKUKAN ===
+        // Tidak ada lagi blok 'lifecycleScope.launch' di sini.
+        // Ini sudah benar karena Data Binding menanganinya secara otomatis.
+        // ===============================================
     }
 
     private fun openMovieDetails(movie: Movie) {
