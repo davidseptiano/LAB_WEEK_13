@@ -1,7 +1,8 @@
 package com.example.lab_week_13
 
+import android.util.Log // 1. Tambahkan import untuk Log
 import com.example.lab_week_13.api.MovieService
-import com.example.lab_week_13.database.MovieDao // <-- Pastikan ini di-import jika belum
+import com.example.lab_week_13.database.MovieDao
 import com.example.lab_week_13.database.MovieDatabase
 import com.example.lab_week_13.model.Movie
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,6 @@ class MovieRepository(
 ) {
     private val apiKey = "84977e7fc52e586f021ff81dad32c61d"
 
-    // Ganti fungsi fetchMovies yang lama dengan yang ini
     fun fetchMovies(): Flow<List<Movie>> {
         return flow {
             // Dapatkan akses ke DAO dari instance database
@@ -39,5 +39,23 @@ class MovieRepository(
             }
             // Jalankan semua operasi di dalam flow ini pada thread I/O
         }.flowOn(Dispatchers.IO)
+    }
+
+    // 2. Tambahkan fungsi baru di sini
+    // Fungsi ini mengambil data dari API dan menyimpannya ke database
+    // untuk menyegarkan daftar film populer secara berkala.
+    suspend fun fetchMoviesFromNetwork() {
+        val movieDao: MovieDao = movieDatabase.movieDao()
+        try {
+            val popularMovies = movieService.getPopularMovies(apiKey)
+            val moviesFetched = popularMovies.results
+            movieDao.addMovies(moviesFetched)
+        } catch (exception: Exception) {
+            // Catat error jika terjadi masalah jaringan atau lainnya
+            Log.d(
+                "MovieRepository",
+                "Terjadi error saat mengambil data: ${exception.message}"
+            )
+        }
     }
 }

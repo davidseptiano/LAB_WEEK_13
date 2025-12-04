@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.converter.moshi)
     implementation(libs.moshi.kotlin)
     kapt(libs.moshi.kotlin.codegen)
+    implementation (libs.androidx.work.runtime)
 
     // Image Loading
     implementation(libs.glide)
